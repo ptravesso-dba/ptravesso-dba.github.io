@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a09">
+<title>Pablo Travesso</title>
+<meta name="description" content="Pablo Travesso, DBA (Oracle, PostgreSQL, MySQL). GitHub, LinkedIn, YouTube and blog.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap">
+<style>
+/* Layout: one dark "instance" — a sigil + name block above a SQL*Plus result set of links,
+   over a field of rising embers that link up like a schema graph and gather to the cursor. */
+:root {
+  --ash: #0c0a09;         /* page ground, warm near-black */
+  --soot: #16110e;        /* console panel */
+  --bone: #eadcc5;        /* primary text */
+  --dust: #9b8d78;        /* secondary text */
+  --ember: #e8833a;       /* the one accent: bonfire */
+  --ember-deep: #8c3b15;  /* ember shadow, glows */
+  --sealed: #857b6d;      /* disabled rows: 4.7:1 on the ground, still dimmer than --dust */
+  --line: rgba(234, 220, 197, 0.13);
+  --line-strong: rgba(234, 220, 197, 0.24);
+  --display: "Cinzel", "Trajan Pro", "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --step--1: clamp(0.72rem, 0.69rem + 0.15vw, 0.8rem);
+  --step-0: clamp(0.86rem, 0.82rem + 0.2vw, 0.95rem);
+  --step-1: clamp(1rem, 0.94rem + 0.3vw, 1.15rem);
+  --step-4: clamp(2.1rem, 1.6rem + 2.6vw, 3.6rem);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(120% 60% at 50% 115%, rgba(140, 59, 21, 0.38), transparent 60%),
+    radial-gradient(60% 40% at 50% 108%, rgba(232, 131, 58, 0.16), transparent 70%),
+    var(--ash);
+  background-attachment: fixed;
+  color: var(--bone);
+  font-family: var(--mono);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#embers {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* faint vignette so the edges sink into the dark */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.shell {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 46rem;
+  margin: 0 auto;
+  padding-block: clamp(3.5rem, 8vh, 6rem) 4.5rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: clamp(2rem, 5vh, 3rem);
+}
+
+/* ---------- language switch ---------- */
+.lang {
+  position: fixed;
+  z-index: 3;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  border: 1px solid var(--line);
+  background: rgba(12, 10, 9, 0.6);
+  backdrop-filter: blur(6px);
+}
+.lang button {
+  font: 500 var(--step--1) / 1 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--dust);
+  background: none;
+  border: 0;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+}
+.lang button[aria-pressed="true"] { color: var(--ash); background: var(--bone); }
+.lang button:hover:not([aria-pressed="true"]) { color: var(--bone); }
+
+/* ---------- identity ---------- */
+.id {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.sigil {
+  position: relative;
+  width: clamp(8.5rem, 22vw, 11rem);
+  aspect-ratio: 1;
+  max-width: 100%;
+}
+.sigil .ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: turn 90s linear infinite;
+}
+.sigil .ring text {
+  font-family: var(--mono);
+  font-size: 7.4px;
+  letter-spacing: 2.6px;
+  fill: var(--dust);
+}
+.sigil .face {
+  position: absolute;
+  inset: 17%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 60%, #241911, #0f0c0a 70%);
+  box-shadow:
+    0 0 0 1px var(--line-strong),
+    0 0 40px -6px rgba(232, 131, 58, 0.45),
+    inset 0 0 24px rgba(0, 0, 0, 0.8);
+  display: grid;
+  place-items: center;
+}
+.sigil .face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sigil .face svg { width: 62%; height: 62%; }
+@keyframes turn { to { transform: rotate(360deg); } }
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dust);
+}
+.eyebrow b { color: var(--ember); font-weight: 500; }
+
+h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: var(--step-4);
+  line-height: 1.02;
+  letter-spacing: 0.04em;
+  text-wrap: balance;
+  color: var(--bone);
+  text-shadow: 0 0 28px rgba(232, 131, 58, 0.18);
+}
+
+.role {
+  margin: 0.75rem 0 0;
+  min-height: 1.6em;
+  font-size: var(--step-1);
+  color: var(--bone);
+}
+.role .caret {
+  display: inline-block;
+  width: 0.6em;
+  margin-left: 2px;
+  color: var(--ember);
+  animation: blink 1.05s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.where {
+  margin: 0.3rem 0 0;
+  font-size: var(--step--1);
+  color: var(--dust);
+}
+
+/* ---------- console ---------- */
+.console {
+  background: linear-gradient(180deg, rgba(22, 17, 14, 0.62), rgba(16, 12, 10, 0.7));
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.4);
+  min-width: 0;
+}
+.console-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--step--1);
+  color: var(--dust);
+  letter-spacing: 0.06em;
+}
+.console-bar .dot { color: var(--ember); }
+.console-body { padding: 1rem 1rem 1.1rem; min-width: 0; }
+
+.query {
+  margin: 0 0 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--bone);
+}
+.query .p { color: var(--dust); }
+.query .k { color: var(--ember); }
+
+.rs-head, .row {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr) 6.5rem;
+  gap: 1rem;
+  align-items: center;
+}
+.rs-head {
+  padding: 0 0.75rem 0.35rem;
+  font-size: var(--step--1);
+  letter-spacing: 0.1em;
+  color: var(--dust);
+}
+.rs-rule {
+  margin: 0 0.75rem 0.25rem;
+  color: var(--dust);
+  font-size: var(--step--1);
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
+.rows { list-style: none; margin: 0; padding: 0; display: grid; }
+.row {
+  position: relative;
+  padding: 0.7rem 0.75rem;
+  color: var(--bone);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+.row .ch { font-weight: 700; letter-spacing: 0.02em; display: flex; align-items: center; gap: 0.55rem; }
+.row .ch svg { width: 1.05em; height: 1.05em; flex: none; fill: currentColor; }
+.row .dest { color: var(--dust); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.row .st { font-size: var(--step--1); letter-spacing: 0.12em; text-align: right; }
+.row .st::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 0.5em; vertical-align: 0.1em; border-radius: 50%; }
+
+a.row .st { color: var(--ember); }
+a.row .st::before { background: var(--ember); box-shadow: 0 0 8px var(--ember); }
+a.row:hover, a.row:focus-visible {
+  background: linear-gradient(90deg, rgba(232, 131, 58, 0.14), rgba(232, 131, 58, 0) 75%);
+  border-left-color: var(--ember);
+  outline: none;
+}
+a.row:hover .ch, a.row:focus-visible .ch { color: var(--ember); }
+a.row:hover .dest, a.row:focus-visible .dest { color: var(--bone); }
+a.row:focus-visible { box-shadow: inset 0 0 0 1px var(--ember); }
+
+.row.sealed { color: var(--sealed); cursor: not-allowed; }
+.row.sealed .dest { color: var(--sealed); font-style: italic; }
+.row.sealed .st { color: var(--sealed); }
+.row.sealed .st::before { background: transparent; box-shadow: inset 0 0 0 1px var(--sealed); }
+.row.sealed:hover { background: repeating-linear-gradient(135deg, rgba(234, 220, 197, 0.03) 0 6px, transparent 6px 12px); }
+.row.sealed:focus-visible { outline: 1px solid var(--sealed); outline-offset: -1px; }
+
+.feedback {
+  margin: 0.9rem 0.75rem 0;
+  font-size: var(--step--1);
+  color: var(--dust);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+}
+.toast {
+  margin: 0.5rem 0.75rem 0;
+  min-height: 1.6em;
+  font-size: var(--step--1);
+  color: var(--ember);
+}
+.toast:empty { visibility: hidden; }
+
+/* ---------- instance status ---------- */
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  font-size: var(--step--1);
+  color: var(--dust);
+  letter-spacing: 0.04em;
+}
+.status b { color: var(--bone); font-weight: 500; }
+.status .live { color: var(--ember); }
+
+/* cursor glow, fine pointers only */
+.glow {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 360px;
+  height: 360px;
+  margin: -180px 0 0 -180px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(232, 131, 58, 0.11), transparent 62%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  will-change: transform;
+}
+
+@media (max-width: 560px) {
+  .id { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+  .role { min-height: calc(2 * 1.6em); }
+  .console-bar > span:last-child { display: none; }
+  .rs-head { display: none; }
+  .rs-rule { display: none; }
+  .row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 0.1rem; }
+  .row .dest { grid-column: 1 / -1; grid-row: 2; font-size: var(--step--1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sigil .ring { animation-duration: 160s; }
+  .row { transition: none; }
+}
+</style>
+
+</head>
+<body>
+<canvas id="embers" aria-hidden="true"></canvas>
+<div class="glow" id="glow" aria-hidden="true"></div>
+
+<div class="lang" role="group" aria-label="Language">
+  <button type="button" id="lang-en" data-lang="en" aria-pressed="true">EN</button>
+  <button type="button" id="lang-pt" data-lang="pt" aria-pressed="false">PT</button>
+</div>
+
+<main class="shell">
+  <section class="id">
+    <div class="sigil">
+      <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <path id="ring-path" d="M100,100 m-88,0 a88,88 0 1,1 176,0 a88,88 0 1,1 -176,0"></path>
+        </defs>
+        <circle cx="100" cy="100" r="97" fill="none" stroke="rgba(234,220,197,0.10)" stroke-width="0.6"></circle>
+        <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(234,220,197,0.10)" stroke-width="0.6" stroke-dasharray="1 5"></circle>
+        <text><textPath href="#ring-path" startOffset="0" textLength="548" lengthAdjust="spacing">ORACLE · POSTGRESQL · MYSQL · DATA GUARD · RAC · RMAN · TUNING · </textPath></text>
+      </svg>
+      <div class="face">
+        <!-- Swap for a photo: <img src="assets/avatar.jpg" alt="Pablo Travesso"> -->
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#8c3b15"></stop>
+              <stop offset="0.6" stop-color="#e8833a"></stop>
+              <stop offset="1" stop-color="#f6c48a"></stop>
+            </linearGradient>
+          </defs>
+          <path d="M32 6c3 7 9 10 9 18 0 4-2 7-4 8 1-4-1-7-3-8 0 5-4 6-4 11 0 2 1 3 2 4-4-1-7-4-7-9 0-9 7-12 7-24z" fill="url(#flame)"></path>
+          <g fill="none" stroke="#eadcc5" stroke-width="1.6" stroke-linecap="round">
+            <ellipse cx="32" cy="40" rx="15" ry="4.5"></ellipse>
+            <path d="M17 40v8c0 2.5 6.7 4.5 15 4.5s15-2 15-4.5v-8"></path>
+            <path d="M17 48v6c0 2.5 6.7 4.5 15 4.5s15-2 15-4.5v-6" opacity="0.55"></path>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="ident">
+      <p class="eyebrow"><b>●</b> <span data-i18n="eyebrow">instance PTRAVESSO · open</span></p>
+      <h1>Pablo Travesso</h1>
+      <p class="role" aria-live="off"><span id="typed"></span><span class="caret" aria-hidden="true">█</span></p>
+      <p class="where" data-i18n="where">Ribeirão Preto, Brazil · UTC−3 · open to remote work</p>
+    </div>
+  </section>
+
+  <section class="console" aria-labelledby="console-title">
+    <div class="console-bar">
+      <span id="console-title"><span class="dot">●</span> SQL*Plus · pablo@ptravesso</span>
+      <span data-i18n="session">session 1 · read write</span>
+    </div>
+    <div class="console-body">
+<pre class="query"><span class="p">SQL&gt;</span> <span class="k">SELECT</span> channel, destination, status
+<span class="p">  2</span>  <span class="k">FROM</span>   pablo.links
+<span class="p">  3</span>  <span class="k">ORDER BY</span> rank;</pre>
+
+      <div class="rs-head" aria-hidden="true"><span>CHANNEL</span><span>DESTINATION</span><span style="text-align:right">STATUS</span></div>
+      <div class="rs-rule" aria-hidden="true">------------ -------------------------------------- ----------</div>
+
+      <ul class="rows">
+        <li>
+          <a class="row" href="https://github.com/ptravesso-dba" target="_blank" rel="noopener noreferrer">
+            <span class="ch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"></path></svg>GitHub</span>
+            <span class="dest">github.com/ptravesso-dba</span>
+            <span class="st">OPEN</span>
+            <span class="sr" data-i18n="newtab">(opens in a new tab)</span>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="https://www.linkedin.com/in/pablo-travesso-141082232/" target="_blank" rel="noopener noreferrer">
+            <span class="ch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"></path></svg>LinkedIn</span>
+            <span class="dest">linkedin.com/in/pablo-travesso</span>
+            <span class="st">OPEN</span>
+            <span class="sr" data-i18n="newtab">(opens in a new tab)</span>
+          </a>
+        </li>
+        <li>
+          <div class="row sealed" role="link" aria-disabled="true" tabindex="0" data-sealed="youtube">
+            <span class="ch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"></path></svg>YouTube</span>
+            <span class="dest" data-i18n="soon">coming soon</span>
+            <span class="st" data-i18n="sealed">SEALED</span>
+          </div>
+        </li>
+        <li>
+          <div class="row sealed" role="link" aria-disabled="true" tabindex="0" data-sealed="blog">
+            <span class="ch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2h10l5 5v15H5V2zm9 1.5V8h4.5L14 3.5zM8 12h9v1.5H8V12zm0 3.5h9V17H8v-1.5zm0 3.5h6v1.5H8V19z"></path></svg>Blog</span>
+            <span class="dest" data-i18n="soon-blog">being written</span>
+            <span class="st" data-i18n="sealed">SEALED</span>
+          </div>
+        </li>
+      </ul>
+
+      <p class="feedback"><span data-i18n="rows">4 rows selected.</span><span>Elapsed: 00:00:00.01</span></p>
+      <p class="toast" id="toast" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <footer class="status">
+    <span>database_role: <b>PRIMARY</b></span>
+    <span>open_mode: <b>READ WRITE</b></span>
+    <span>protection_mode: <b>MAXIMUM AVAILABILITY</b></span>
+    <span class="live" data-i18n="uptime">● listening</span>
+  </footer>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ?motion=1 forces the animation on, for testing in browsers that report reduced motion
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches && !/[?&]motion=1\b/.test(location.search);
+
+  /* ---------------- i18n ---------------- */
+  var copy = {
+    en: {
+      eyebrow: "instance PTRAVESSO · open",
+      where: "Ribeirão Preto, Brazil · UTC−3 · open to remote work",
+      session: "session 1 · read write",
+      soon: "coming soon",
+      "soon-blog": "being written",
+      sealed: "SEALED",
+      rows: "4 rows selected.",
+      uptime: "● listening",
+      newtab: "(opens in a new tab)",
+      typed: [
+        "Oracle DBA · PostgreSQL · MySQL.",
+        "Performance & SQL tuning · AWR · ASH.",
+        "Data Guard · RAC · ASM · RMAN.",
+        "Keeping production up while you sleep."
+      ],
+      toast: {
+        youtube: "ORA-01033: YouTube is still starting up. Coming soon.",
+        blog: "ORA-01033: the blog is still being written. Coming soon."
+      }
+    },
+    pt: {
+      eyebrow: "instância PTRAVESSO · aberta",
+      where: "Ribeirão Preto, Brasil · UTC−3 · aberto a trabalho remoto",
+      session: "sessão 1 · read write",
+      soon: "em breve",
+      "soon-blog": "em escrita",
+      sealed: "SELADO",
+      rows: "4 linhas selecionadas.",
+      uptime: "● escutando",
+      newtab: "(abre em nova aba)",
+      typed: [
+        "DBA Oracle · PostgreSQL · MySQL.",
+        "Tuning de performance e de SQL · AWR · ASH.",
+        "Data Guard · RAC · ASM · RMAN.",
+        "Mantendo a produção de pé enquanto você dorme."
+      ],
+      toast: {
+        youtube: "ORA-01033: o YouTube ainda está inicializando. Em breve.",
+        blog: "ORA-01033: o blog ainda está sendo escrito. Em breve."
+      }
+    }
+  };
+
+  var lang = "en";
+  try { var saved = localStorage.getItem("pt-links-lang"); if (saved === "pt" || saved === "en") lang = saved; } catch (e) {}
+
+  var typedEl = document.getElementById("typed");
+  var toastEl = document.getElementById("toast");
+  var typer = null;
+
+  function applyLang(next) {
+    lang = next;
+    document.documentElement.lang = lang === "pt" ? "pt-BR" : "en";
+    var t = copy[lang];
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var k = el.getAttribute("data-i18n");
+      if (typeof t[k] === "string") el.textContent = t[k];
+    });
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === lang));
+    });
+    toastEl.textContent = "";
+    startTyping(t.typed);
+    try { localStorage.setItem("pt-links-lang", lang); } catch (e) {}
+  }
+
+  document.querySelectorAll(".lang button").forEach(function (b) {
+    b.addEventListener("click", function () { applyLang(b.getAttribute("data-lang")); });
+  });
+
+  /* ---------------- typing ---------------- */
+  function startTyping(lines) {
+    if (typer) clearTimeout(typer);
+    var li = 0, ci = 0, del = false;
+    typedEl.textContent = "";
+    (function tick() {
+      var line = lines[li];
+      if (!del) {
+        ci++;
+        typedEl.textContent = line.slice(0, ci);
+        if (ci === line.length) { del = true; typer = setTimeout(tick, 2100); return; }
+        typer = setTimeout(tick, 48 + Math.random() * 40);
+      } else {
+        ci--;
+        typedEl.textContent = line.slice(0, ci);
+        if (ci === 0) { del = false; li = (li + 1) % lines.length; typer = setTimeout(tick, 380); return; }
+        typer = setTimeout(tick, 22);
+      }
+    })();
+  }
+
+  /* ---------------- sealed rows ---------------- */
+  var toastTimer = null;
+  function sealedMsg(el) {
+    toastEl.textContent = copy[lang].toast[el.getAttribute("data-sealed")];
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.textContent = ""; }, 4200);
+  }
+  document.querySelectorAll(".row.sealed").forEach(function (el) {
+    el.addEventListener("click", function () { sealedMsg(el); });
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); sealedMsg(el); }
+    });
+  });
+
+  applyLang(lang);
+
+  /* ---------------- embers ---------------- */
+  // The background always moves: Pablo asked for a living scene. With reduced motion
+  // it keeps moving, only slower and without the cursor trail.
+  var canvas = document.getElementById("embers");
+  var ctx = canvas.getContext("2d");
+  var glow = document.getElementById("glow");
+  var W = 0, H = 0, DPR = 1;
+  var embers = [], sparks = [];
+  var mouse = { x: -9999, y: -9999, vx: 0, vy: 0, active: false, touch: false };
+  var LINK = 130;   // max distance for a link between two embers
+  var REACH = 220;  // cursor influence radius
+  var CORE = 64;    // inside this the flame pushes embers away
+  var SPEED = reduce ? 0.5 : 1;
+  var running = true, lastT = 0;
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  function makeEmber(fresh) {
+    var bx = rand(-0.22, 0.22), by = rand(-0.6, -0.12);
+    return {
+      x: rand(0, W),
+      y: fresh ? rand(0, H) : H + rand(5, 40),
+      bx: bx, by: by, vx: bx, vy: by,
+      r: rand(0.7, 2.2),
+      phase: rand(0, Math.PI * 2),
+      wob: rand(0.6, 1.5),
+      heat: rand(0.5, 1),
+      near: 0
+    };
+  }
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var target = Math.max(40, Math.min(150, Math.round((W * H) / 9500)));
+    while (embers.length < target) embers.push(makeEmber(true));
+    if (embers.length > target) embers.length = target;
+  }
+
+  function color(heat, a) {
+    // heat 0..1 → deep ember to pale flame
+    var r = 200 + 50 * heat, g = 70 + 120 * heat * heat, b = 25 + 70 * heat * heat * heat;
+    return "rgba(" + (r | 0) + "," + (g | 0) + "," + (b | 0) + "," + a.toFixed(3) + ")";
+  }
+
+  function step(t) {
+    var dt = lastT ? Math.min(3, (t - lastT) / 16.667) : 1;
+    lastT = t;
+    var k = dt * SPEED;
+    var i, j, e, f, dx, dy, d, sp;
+
+    mouse.vx *= Math.pow(0.88, dt);
+    mouse.vy *= Math.pow(0.88, dt);
+
+    ctx.clearRect(0, 0, W, H);
+
+    /* physics */
+    for (i = 0; i < embers.length; i++) {
+      e = embers[i];
+      e.phase += 0.02 * k;
+      // ease back to the natural updraft, with a slow sideways sway
+      e.vx += (e.bx + Math.sin(e.phase * e.wob) * 0.2 - e.vx) * 0.03 * k;
+      e.vy += (e.by - e.vy) * 0.03 * k;
+      e.near = 0;
+
+      if (mouse.active) {
+        dx = e.x - mouse.x; dy = e.y - mouse.y;
+        d = Math.sqrt(dx * dx + dy * dy);
+        if (d < REACH && d > 0.5) {
+          var nx = dx / d, ny = dy / d, fall = 1 - d / REACH;
+          e.near = fall;
+          if (d < CORE) {
+            // too close to the flame: pushed out
+            var push = (1 - d / CORE) * 0.8;
+            e.vx += nx * push * k; e.vy += ny * push * k;
+          } else {
+            // drawn in and set orbiting, like souls around a bonfire
+            e.vx += (-nx * 0.045 - ny * 0.085) * fall * k;
+            e.vy += (-ny * 0.045 + nx * 0.085) * fall * k;
+          }
+          // the moving cursor stirs the air
+          e.vx += mouse.vx * 0.018 * fall * k;
+          e.vy += mouse.vy * 0.018 * fall * k;
+        }
+      }
+
+      sp = Math.sqrt(e.vx * e.vx + e.vy * e.vy);
+      if (sp > 4.5) { e.vx *= 4.5 / sp; e.vy *= 4.5 / sp; }
+      e.x += e.vx * k;
+      e.y += e.vy * k;
+      if (e.y < -30 || e.y > H + 60 || e.x < -50 || e.x > W + 50) embers[i] = makeEmber(false);
+    }
+
+    /* schema-graph links between nearby embers */
+    ctx.lineWidth = 0.6;
+    for (i = 0; i < embers.length; i++) {
+      e = embers[i];
+      for (j = i + 1; j < embers.length; j++) {
+        f = embers[j];
+        dx = e.x - f.x; dy = e.y - f.y;
+        if (dx > LINK || dx < -LINK || dy > LINK || dy < -LINK) continue;
+        d = Math.sqrt(dx * dx + dy * dy);
+        if (d < LINK) {
+          var w = 1 - d / LINK, hot = Math.min(e.near, f.near);
+          ctx.strokeStyle = hot > 0.05
+            ? color(0.8, (0.14 + 0.4 * hot) * w)
+            : "rgba(234,220,197," + (0.14 * w).toFixed(3) + ")";
+          ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(f.x, f.y); ctx.stroke();
+        }
+      }
+      // threads from the cursor to the embers it holds
+      if (e.near > 0) {
+        ctx.strokeStyle = color(e.heat, 0.5 * e.near);
+        ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
+      }
+    }
+
+    /* embers */
+    for (i = 0; i < embers.length; i++) {
+      e = embers[i];
+      var flick = 0.55 + 0.45 * Math.sin(e.phase * 3 + i);
+      var a = Math.min(1, 0.35 + 0.5 * flick + e.near * 0.45);
+      var rr = e.r * (1 + e.near * 0.9);
+      var heat = Math.min(1, e.heat + e.near * 0.45);
+      ctx.fillStyle = color(heat, a * 0.18);
+      ctx.beginPath(); ctx.arc(e.x, e.y, rr * 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = color(heat, a);
+      ctx.beginPath(); ctx.arc(e.x, e.y, rr, 0, Math.PI * 2); ctx.fill();
+    }
+
+    /* bonfire sparks: additive light, white-hot streaks cooling to orange, then deep red */
+    ctx.globalCompositeOperation = "lighter";
+    for (i = flashes.length - 1; i >= 0; i--) {
+      var fl = flashes[i];
+      fl.life -= k;
+      if (fl.life <= 0) { flashes.splice(i, 1); continue; }
+      var fq = fl.life / fl.max, fr = 12 + (1 - fq) * 38;
+      var grad = ctx.createRadialGradient(fl.x, fl.y, 0, fl.x, fl.y, fr);
+      grad.addColorStop(0, "rgba(255,214,150," + (0.28 * fq).toFixed(3) + ")");
+      grad.addColorStop(0.35, "rgba(232,131,58," + (0.14 * fq).toFixed(3) + ")");
+      grad.addColorStop(1, "rgba(140,59,21,0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(fl.x, fl.y, fr, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.lineCap = "round";
+    for (i = sparks.length - 1; i >= 0; i--) {
+      var s = sparks[i];
+      // hot air: random flutter, drag, and the spark's own buoyancy (negative g rises)
+      s.vx += (Math.random() - 0.5) * s.flutter * k;
+      s.vy += s.g * k;
+      var drag = Math.pow(s.drag, k);
+      s.vx *= drag; s.vy *= drag;
+      s.x += s.vx * k; s.y += s.vy * k;
+      s.life -= k;
+      if (s.life <= 0) { sparks.splice(i, 1); continue; }
+      var q = s.life / s.max;
+      var twinkle = 0.65 + 0.35 * Math.sin(s.life * 0.8 + s.seed);
+      var al = Math.min(1, q * 1.4) * s.a * twinkle;
+      var hot = q > 0.7 ? "rgba(255,236,190," : q > 0.4 ? "rgba(255,160,70," : "rgba(214,84,30,";
+      if (s.streak) {
+        var len = s.streak;
+        ctx.strokeStyle = hot + al.toFixed(3) + ")";
+        ctx.lineWidth = s.size * (0.5 + 0.5 * q);
+        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - s.vx * len, s.y - s.vy * len); ctx.stroke();
+      } else {
+        ctx.fillStyle = hot + (al * 0.25).toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.size * 3.2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = hot + al.toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    ctx.globalCompositeOperation = "source-over";
+
+    if (running) requestAnimationFrame(step);
+  }
+
+  var flashes = [];
+
+  function addSpark(o) {
+    if (sparks.length > 320) return;
+    o.max = o.life;
+    o.seed = rand(0, 6.28);
+    sparks.push(o);
+  }
+
+  function burst(x, y) {
+    flashes.push({ x: x, y: y, life: 16, max: 16 });
+    // streaks shot upward from the bonfire, a few heavy ones arcing back down
+    for (var n = 0; n < 20; n++) {
+      var heavy = Math.random() < 0.2;
+      var ang = -Math.PI / 2 + rand(-1, 1) * (heavy ? 1.3 : 0.75), sp = heavy ? rand(1.5, 3.5) : rand(2, 5.5);
+      addSpark({
+        x: x + rand(-3, 3), y: y + rand(-3, 3),
+        vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,
+        g: heavy ? 0.12 : -0.025, drag: heavy ? 0.985 : 0.955, flutter: heavy ? 0.05 : 0.22,
+        life: Math.round(heavy ? rand(25, 45) : rand(35, 80)),
+        size: rand(0.7, 1.3), streak: heavy ? 1.6 : 2.2, a: 0.75
+      });
+    }
+    // slow cinders that linger and drift up after the burst
+    for (n = 0; n < 5; n++) {
+      addSpark({
+        x: x + rand(-14, 14), y: y + rand(-10, 6),
+        vx: rand(-0.6, 0.6), vy: rand(-1.6, -0.4),
+        g: -0.012, drag: 0.99, flutter: 0.12,
+        life: Math.round(rand(90, 160)), size: rand(0.7, 1.2), streak: 0, a: 0.6
+      });
+    }
+    // the blast also shoves nearby embers away
+    for (var i = 0; i < embers.length; i++) {
+      var e = embers[i], dx = e.x - x, dy = e.y - y, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 200 && d > 0.5) { var p = (1 - d / 200) * 3; e.vx += (dx / d) * p; e.vy += (dy / d) * p; }
+    }
+  }
+
+  var fine = window.matchMedia("(pointer: fine)").matches;
+  var lastMove = null;
+  window.addEventListener("pointermove", function (ev) {
+    var x = ev.clientX, y = ev.clientY;
+    if (lastMove) {
+      mouse.vx = mouse.vx * 0.5 + (x - lastMove.x) * 0.5;
+      mouse.vy = mouse.vy * 0.5 + (y - lastMove.y) * 0.5;
+    }
+    lastMove = { x: x, y: y };
+    mouse.x = x; mouse.y = y; mouse.active = true;
+    mouse.touch = ev.pointerType === "touch";
+    // a faint trail of embers rising behind the cursor
+    var moved = Math.abs(mouse.vx) + Math.abs(mouse.vy);
+    if (!reduce && moved > 2 && Math.random() < Math.min(0.9, moved / 14)) {
+      addSpark({
+        x: x + rand(-4, 4), y: y + rand(-4, 4),
+        vx: rand(-0.4, 0.4) - mouse.vx * 0.04, vy: rand(-1.1, -0.4),
+        g: -0.006, drag: 0.985, flutter: 0.1,
+        life: Math.round(rand(30, 60)), size: rand(0.8, 1.3), streak: 0, a: 0.75
+      });
+    }
+    if (fine) {
+      glow.style.opacity = "1";
+      glow.style.transform = "translate(" + x + "px," + y + "px)";
+    }
+  }, { passive: true });
+
+  function release() { mouse.active = false; lastMove = null; glow.style.opacity = "0"; }
+  document.addEventListener("pointerleave", release);
+  window.addEventListener("blur", release);
+  window.addEventListener("pointerup", function (ev) { if (ev.pointerType === "touch") release(); });
+  window.addEventListener("pointercancel", function (ev) { if (ev.pointerType === "touch") release(); });
+  window.addEventListener("pointerdown", function (ev) {
+    if (ev.target.closest("a, button, .row")) return;
+    if (ev.pointerType === "touch") { mouse.x = ev.clientX; mouse.y = ev.clientY; mouse.active = true; }
+    burst(ev.clientX, ev.clientY);
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    var was = running;
+    running = !document.hidden;
+    if (running && !was) { lastT = 0; requestAnimationFrame(step); }
+  });
+
+  window.addEventListener("resize", resize);
+  resize();
+  requestAnimationFrame(step);
+})();
+</script>
+</body>
+</html>
