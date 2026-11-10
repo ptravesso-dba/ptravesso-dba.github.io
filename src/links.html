@@ -409,6 +409,13 @@ a.row:focus-visible { box-shadow: inset 0 0 0 1px var(--ember); }
           </a>
         </li>
         <li>
+          <div class="row sealed" role="link" aria-disabled="true" tabindex="0" data-sealed="cv">
+            <span class="ch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1 2v12h16V6H4zm4.5 2.2a2.3 2.3 0 1 1 0 4.6 2.3 2.3 0 0 1 0-4.6zM5 16.4c.3-1.8 1.8-2.9 3.5-2.9s3.2 1.1 3.5 2.9H5zM13.5 9H19v1.5h-5.5V9zm0 3H19v1.5h-5.5V12zm0 3H17v1.5h-3.5V15z"></path></svg><span data-i18n="cv">Résumé</span></span>
+            <span class="dest" data-i18n="soon-cv">being updated</span>
+            <span class="st" data-i18n="sealed">SEALED</span>
+          </div>
+        </li>
+        <li>
           <div class="row sealed" role="link" aria-disabled="true" tabindex="0" data-sealed="youtube">
             <span class="ch"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"></path></svg>YouTube</span>
             <span class="dest" data-i18n="soon">coming soon</span>
@@ -424,7 +431,7 @@ a.row:focus-visible { box-shadow: inset 0 0 0 1px var(--ember); }
         </li>
       </ul>
 
-      <p class="feedback"><span data-i18n="rows">4 rows selected.</span><span>Elapsed: 00:00:00.01</span></p>
+      <p class="feedback"><span data-i18n="rows">5 rows selected.</span><span>Elapsed: 00:00:00.01</span></p>
       <p class="toast" id="toast" aria-live="polite"></p>
     </div>
   </section>
@@ -453,7 +460,9 @@ a.row:focus-visible { box-shadow: inset 0 0 0 1px var(--ember); }
       soon: "coming soon",
       "soon-blog": "being written",
       sealed: "SEALED",
-      rows: "4 rows selected.",
+      rows: "5 rows selected.",
+      cv: "Résumé",
+      "soon-cv": "being updated",
       uptime: "● listening",
       newtab: "(opens in a new tab)",
       typed: [
@@ -463,6 +472,7 @@ a.row:focus-visible { box-shadow: inset 0 0 0 1px var(--ember); }
         "Keeping production up while you sleep."
       ],
       toast: {
+        cv: "ORA-01033: the résumé is being updated. Coming soon.",
         youtube: "ORA-01033: YouTube is still starting up. Coming soon.",
         blog: "ORA-01033: the blog is still being written. Coming soon."
       }
@@ -474,7 +484,9 @@ a.row:focus-visible { box-shadow: inset 0 0 0 1px var(--ember); }
       soon: "em breve",
       "soon-blog": "em escrita",
       sealed: "SELADO",
-      rows: "4 linhas selecionadas.",
+      rows: "5 linhas selecionadas.",
+      cv: "Currículo",
+      "soon-cv": "em atualização",
       uptime: "● escutando",
       newtab: "(abre em nova aba)",
       typed: [
@@ -484,6 +496,7 @@ a.row:focus-visible { box-shadow: inset 0 0 0 1px var(--ember); }
         "Mantendo a produção de pé enquanto você dorme."
       ],
       toast: {
+        cv: "ORA-01033: o currículo está em atualização. Em breve.",
         youtube: "ORA-01033: o YouTube ainda está inicializando. Em breve.",
         blog: "ORA-01033: o blog ainda está sendo escrito. Em breve."
       }

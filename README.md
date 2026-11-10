@@ -21,6 +21,9 @@ The links are shown as the result of a SQL*Plus query (`SELECT channel, destinat
 | `build.sh` | Wraps the source into the standalone `index.html`. |
 | `index.html` | Generated page served by GitHub Pages. Do not edit by hand. |
 | `tools/serve.ps1` | Tiny local static server for previews (`http://localhost:8765`). |
+| `src/head-site.html` | Favicon and share-card tags added only to the hosted page. |
+| `assets/` | Favicon, touch icon and the 1200×630 share card (`og.png`). |
+| `tools/og/` | Templates and `render.ps1`, which regenerates the share card and touch icon with headless Edge. |
 
 ## Update
 
